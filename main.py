@@ -36,8 +36,8 @@ def train():
         x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
     G_sample = models.generator(x)
-    logits_fake = models.discriminator(G_sample)
-    logits_real = models.discriminator(y_)
+    logits_fake = models.discriminator(G_sample, name='D1')
+    logits_real = models.discriminator(y_, name='D2')
 
     # get loss
     D_loss, G_loss = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
@@ -48,6 +48,9 @@ def train():
     # get training steps
     D_train_step = D_solver.minimize(D_loss)
     G_train_step = G_solver.minimize(G_loss)
+
+    # init
+    tf.global_variables_initializer().run()
 
     # iterations
     for it in range(1000):
@@ -64,9 +67,6 @@ def train():
 def main():
 
     # input data
-    with tf.name_scope("input"):
-        x = tf.placeholder(tf.float32, [None, 784], name="x-input")
-        y_ = tf.placeholder(tf.float32, [None, 10], name="y-input")
     # pre process data
     train()
     # train
@@ -113,7 +113,5 @@ if __name__ == "__main__":
 
     EPS = 1e-12
     CROP_SIZE = 256
-
-    x, y = get_input()
 
     main()
