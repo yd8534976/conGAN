@@ -56,10 +56,11 @@ def train():
 
     # iterations
     for it in range(100):
-        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs, y_: ys})
-        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs, y_: ys})
+        mask = np.random.choice(400, 30)
+        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
-    samples = sess.run(G_sample, feed_dict={x: xs, y_: ys})
+    samples = sess.run(G_sample, feed_dict={x: xs[mask], y_: ys[mask]})
 
     img = Image.fromarray(samples[0])
     img.save("./g_sample")
