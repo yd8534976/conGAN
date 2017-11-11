@@ -1,5 +1,9 @@
 import tensorflow as tf
 import numpy as np
+from PIL import Image
+
+import models
+import loss
 
 import argparse
 import os
@@ -7,11 +11,64 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 
+def get_input(model="train"):
+    dataset = np.zeros((400, 256, 512, 3))
+    for i in range(1, 401):
+        img = Image.open("dataset/" + model + "/" + str(i) + ".jpg")
+        dataset[i - 1] = np.array(img)
+    x = dataset[:, :, :256, :]
+    y = dataset[:, :, 256:, :]
+    return x, y
+
+
+def get_solver(learning_rate=1e-3, beta1=0.5):
+    D_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
+    G_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
+    return D_solver, G_solver
+
+
+def train():
+    xs, ys = get_input()
+
+    sess = tf.InteractiveSession()
+
+    with tf.name_scope("input"):
+        x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
+        y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
+    G_sample = models.generator(x)
+    logits_fake = models.discriminator(G_sample)
+    logits_real = models.discriminator(y_)
+
+    # get loss
+    D_loss, G_loss = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
+
+    # get solver
+    D_solver, G_solver = get_solver()
+
+    # get training steps
+    D_train_step = D_solver.minimize(D_loss)
+    G_train_step = G_solver.minimize(G_loss)
+
+    # iterations
+    for it in range(1000):
+        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs})
+        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={y_: ys})
+    samples = sess.run(G_sample)
+
+    samples = sess.run(G_sample)
+    img = Image.fromarray(samples[0])
+    img.save("./g_sample")
+    return 0
+
+
 def main():
-    # arg parse
 
+    # input data
+    with tf.name_scope("input"):
+        x = tf.placeholder(tf.float32, [None, 784], name="x-input")
+        y_ = tf.placeholder(tf.float32, [None, 10], name="y-input")
     # pre process data
-
+    train()
     # train
     # iter
 
@@ -19,6 +76,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # Argument parse
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-dir")
     parser.add_argument("--mode")
@@ -50,6 +108,12 @@ if __name__ == "__main__":
     parser.add_argument("--gan_weight")
 
     # export options
-    parser.add_argument("--output_filetype")
+    parser.add_argument("--output_filetype", default="png", choices=["png", "jpeg"])
     a = parser.parse_args()
-    print(main())
+
+    EPS = 1e-12
+    CROP_SIZE = 256
+
+    x, y = get_input()
+
+    main()
