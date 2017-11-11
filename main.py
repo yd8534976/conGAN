@@ -8,7 +8,7 @@ import loss
 import argparse
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def get_input(model="train"):
@@ -54,11 +54,11 @@ def train():
 
     # iterations
     for it in range(1000):
-        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs})
-        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={y_: ys})
-    samples = sess.run(G_sample)
+        print("iter " + str(it) + " : ")
+        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs, y_: ys})
+        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs, y_: ys})
+    samples = sess.run(G_sample, feed_dict={x: xs, y_: ys})
 
-    samples = sess.run(G_sample)
     img = Image.fromarray(samples[0])
     img.save("./g_sample")
     return 0
