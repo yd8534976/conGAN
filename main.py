@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from PIL import Image
+from scipy import misc
 
 import models
 import loss
@@ -62,8 +63,10 @@ def train():
         print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
     samples = sess.run(G_sample, feed_dict={x: xs[mask], y_: ys[mask]})
 
-    img = Image.fromarray(samples[0])
-    img.save("./g_sample")
+    img = np.array(samples[0])
+    print(img.shape)
+    im = Image.fromarray(np.uint8(img))
+    im.save("my_sample.jpeg")
     return 0
 
 

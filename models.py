@@ -66,33 +66,36 @@ def generator(input, name="generator"):
                               strides=(2, 2), padding='same',
                               activation=tf.nn.relu)
         # decoder
-        h9 = tf.layers.conv2d(h8, filters=512, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.relu)
+        h9 = tf.layers.conv2d_transpose(h8, filters=512, kernel_size=(4, 4),
+                                        strides=(2, 2), padding='same',
+                                        activation=tf.nn.relu)
         h9 = tf.nn.dropout(h9, keep_prob=0.5)
-        h10 = tf.layers.conv2d(h9, filters=512, kernel_size=(4, 4),
-                               strides=(2, 2), padding='same',
-                               activation=tf.nn.relu)
+        h10 = tf.layers.conv2d_transpose(h9, filters=512, kernel_size=(4, 4),
+                                         strides=(2, 2), padding='same',
+                                         activation=tf.nn.relu)
         h10 = tf.nn.dropout(h10, keep_prob=0.5)
-        h11 = tf.layers.conv2d(h10, filters=512, kernel_size=(4, 4),
-                               strides=(2, 2), padding='same',
-                               activation=tf.nn.relu)
+        h11 = tf.layers.conv2d_transpose(h10, filters=512, kernel_size=(4, 4),
+                                         strides=(2, 2), padding='same',
+                                         activation=tf.nn.relu)
         h11 = tf.nn.dropout(h11, keep_prob=0.5)
-        h12 = tf.layers.conv2d(h11, filters=512, kernel_size=(4, 4),
-                               strides=(2, 2), padding='same',
-                               activation=tf.nn.relu)
-        h13 = tf.layers.conv2d(h12, filters=512, kernel_size=(4, 4),
-                               strides=(2, 2), padding='same',
-                               activation=tf.nn.relu)
-        h14 = tf.layers.conv2d(h13, filters=256, kernel_size=(4, 4),
-                               strides=(2, 2), padding='same',
-                               activation=tf.nn.relu)
-        h15 = tf.layers.conv2d(h14, filters=128, kernel_size=(4, 4),
-                               strides=(2, 2), padding='same',
-                               activation=tf.nn.relu)
-        out = tf.layers.conv2d(h15, filters=64, kernel_size=(4, 4),
-                               strides=(2, 2), padding='same',
-                               activation=tf.nn.relu)
+        h12 = tf.layers.conv2d_transpose(h11, filters=512, kernel_size=(4, 4),
+                                         strides=(2, 2), padding='same',
+                                         activation=tf.nn.relu)
+        h13 = tf.layers.conv2d_transpose(h12, filters=512, kernel_size=(4, 4),
+                                         strides=(2, 2), padding='same',
+                                         activation=tf.nn.relu)
+        h14 = tf.layers.conv2d_transpose(h13, filters=256, kernel_size=(4, 4),
+                                         strides=(2, 2), padding='same',
+                                         activation=tf.nn.relu)
+        h15 = tf.layers.conv2d_transpose(h14, filters=128, kernel_size=(4, 4),
+                                         strides=(2, 2), padding='same',
+                                         activation=tf.nn.relu)
+        h16 = tf.layers.conv2d_transpose(h15, filters=64, kernel_size=(4, 4),
+                                         strides=(2, 2), padding='same',
+                                         activation=tf.nn.relu)
+        out = tf.layers.conv2d_transpose(h16, filters=3, kernel_size=(4, 4),
+                                         strides=(1, 1), padding='same',
+                                         activation=tf.nn.relu)
 
     logits = 0
     return out
