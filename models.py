@@ -69,41 +69,42 @@ def generator(input, name="generator"):
         h9 = tf.layers.conv2d_transpose(h8, filters=512, kernel_size=(4, 4),
                                         strides=(2, 2), padding='same',
                                         activation=tf.nn.relu)
-        h9 = tf.stack([h8, h9], axis=3)
+        h9 = tf.concat([h7, h9], axis=3)
+        print(tf.shape(input))
         h9 = tf.nn.dropout(h9, keep_prob=0.5)
         h10 = tf.layers.conv2d_transpose(h9, filters=512, kernel_size=(4, 4),
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
-        h10 = tf.stack([h7, h10], axis=3)
+        h10 = tf.concat([h6, h10], axis=3)
         h10 = tf.nn.dropout(h10, keep_prob=0.5)
         h11 = tf.layers.conv2d_transpose(h10, filters=512, kernel_size=(4, 4),
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
-        h11 = tf.stack([h6, h11], axis=3)
+        h11 = tf.concat([h5, h11], axis=3)
         h11 = tf.nn.dropout(h11, keep_prob=0.5)
         h12 = tf.layers.conv2d_transpose(h11, filters=512, kernel_size=(4, 4),
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
-        h12 = tf.stack([h5, h12], axis=3)
+        h12 = tf.concat([h4, h12], axis=3)
         h13 = tf.layers.conv2d_transpose(h12, filters=512, kernel_size=(4, 4),
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
-        h13 = tf.stack([h4, h13], axis=3)
+        h13 = tf.concat([h3, h13], axis=3)
         h14 = tf.layers.conv2d_transpose(h13, filters=256, kernel_size=(4, 4),
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
-        h14 = tf.stack([h3, h14], axis=3)
+        h14 = tf.concat([h2, h14], axis=3)
         h15 = tf.layers.conv2d_transpose(h14, filters=128, kernel_size=(4, 4),
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
-        h15 = tf.stack([h2, h15], axis=3)
+        h15 = tf.concat([h1, h15], axis=3)
         h16 = tf.layers.conv2d_transpose(h15, filters=64, kernel_size=(4, 4),
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
-        h16 = tf.stack([h1, h16], axis=3)
-        out = tf.layers.conv2d_transpose(h16, filters=3, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
+
+        out = tf.layers.conv2d(h16, filters=3, kernel_size=(4, 4),
+                               strides=(1, 1), padding='same',
+                               activation=tf.nn.relu)
 
     logits = 0
     return out
