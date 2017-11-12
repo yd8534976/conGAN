@@ -43,7 +43,7 @@ def train():
     logits_real = models.discriminator(y_, name='D2')
 
     # get loss
-    D_loss, G_loss = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
+    D_loss, G_loss = loss.lsgan_loss(logits_fake=logits_fake, logits_real=logits_real)
 
     # get solver
     D_solver, G_solver = get_solver()

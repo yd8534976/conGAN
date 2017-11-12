@@ -23,3 +23,14 @@ def gan_loss(logits_real, logits_fake):
     D_loss += tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=labels_zeros_f, logits=logits_fake))
 
     return D_loss, G_loss
+
+
+def lsgan_loss(logits_real, logits_fake):
+    """Compute the Least Squares GAN loss.
+    """
+    # TODO: compute D_loss and G_loss
+    D_loss = tf.reduce_mean(tf.square(logits_real - 1)) + tf.reduce_mean(tf.square(logits_fake))
+    G_loss = tf.reduce_mean(tf.square(logits_fake - 1))
+    D_loss /= 2
+    G_loss /= 2
+    return D_loss, G_loss
