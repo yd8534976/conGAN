@@ -56,7 +56,7 @@ def train():
     tf.global_variables_initializer().run()
 
     # iterations
-    for it in range(100):
+    for it in range(50):
         mask = np.random.choice(400, 30)
         _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
