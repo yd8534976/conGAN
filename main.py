@@ -56,17 +56,18 @@ def train():
     tf.global_variables_initializer().run()
 
     # iterations
-    for it in range(50):
+    for it in range(5000):
         mask = np.random.choice(400, 30)
         _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
-    samples = sess.run(G_sample, feed_dict={x: xs[mask], y_: ys[mask]})
 
-    img = np.array(samples[0])
-    print(img.shape)
-    im = Image.fromarray(np.uint8(img))
-    im.save("my_sample.jpeg")
+        if it % 100 == 0:
+            samples = sess.run(G_sample, feed_dict={x: xs[mask], y_: ys[mask]})
+
+            img = np.array(samples[0])
+            im = Image.fromarray(np.uint8(img))
+            im.save("generated_sample" + str(it) + ".jpeg")
     return 0
 
 
