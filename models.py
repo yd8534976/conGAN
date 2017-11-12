@@ -94,7 +94,7 @@ def generator(input, name="generator"):
                                          strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
         out = tf.layers.conv2d_transpose(h16, filters=3, kernel_size=(4, 4),
-                                         strides=(1, 1), padding='same',
+                                         strides=(2, 2), padding='same',
                                          activation=tf.nn.relu)
 
     logits = 0
