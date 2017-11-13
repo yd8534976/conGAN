@@ -39,8 +39,8 @@ def train():
         x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
     G_sample = models.generator(x)
-    logits_fake = models.discriminator(G_sample, name='D1')
-    logits_real = models.discriminator(y_, name='D2')
+    logits_fake = models.con_discriminator(x, G_sample, name='D1')
+    logits_real = models.con_discriminator(x, y_, name='D2')
 
     # get loss
     D_loss, G_loss = loss.lsgan_loss(logits_fake=logits_fake, logits_real=logits_real)

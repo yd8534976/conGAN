@@ -32,6 +32,36 @@ def discriminator(inputs, name="discriminator"):
     return logits
 
 
+def con_discriminator(x, y, name="discriminator"):
+    """
+    Discriminator for conGAN
+    :param input:
+    :param name:
+    :return:
+    """
+    with tf.variable_scope(name):
+        inputs = tf.concat([x, y], axis=3)
+        h1 = tf.layers.conv2d(inputs, filters=64, kernel_size=(4, 4),
+                              strides=(2, 2), padding='same',
+                              activation=tf.nn.leaky_relu)
+        h1 = tf.layers.batch_normalization(h1)
+        h2 = tf.layers.conv2d(h1, filters=128, kernel_size=(4, 4),
+                              strides=(2, 2), padding='same',
+                              activation=tf.nn.leaky_relu)
+        h2 = tf.layers.batch_normalization(h2)
+        h3 = tf.layers.conv2d(h2, filters=256, kernel_size=(4, 4),
+                              strides=(2, 2), padding='same',
+                              activation=tf.nn.leaky_relu)
+        h3 = tf.layers.batch_normalization(h3)
+        h4 = tf.layers.conv2d(h3, filters=512, kernel_size=(4, 4),
+                              strides=(2, 2), padding='same',
+                              activation=tf.nn.leaky_relu)
+        h4 = tf.layers.batch_normalization(h4)
+        logits = tf.layers.dense(h4, units=1, activation=tf.nn.sigmoid)
+
+    return logits
+
+
 def generator(inputs, name="generator"):
     """
     Generator for conGAN
