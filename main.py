@@ -30,8 +30,9 @@ def get_solver(learning_rate=2e-4, beta1=0.5):
 
 def train():
     xs, ys = get_input()
-    print(xs.shape)
-    print(ys.shape)
+    print("load input successfully")
+    print("input x shape is {}".format(xs.shape))
+    print("input y shape is {}".format(ys.shape))
 
     sess = tf.InteractiveSession()
 
@@ -56,19 +57,21 @@ def train():
     tf.global_variables_initializer().run()
 
     # iterations
-    for it in range(5000):
-        mask = np.random.choice(400, 1)
-        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
-        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
-        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
-        print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
+    for epoch in range(300):
+        print("Epoch: {}".format(epoch))
+        for it in range(400):
+            mask = np.random.choice(400, 1)
+            _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+            _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+            _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
 
-        if it % 100 == 0:
-            samples = sess.run(G_sample, feed_dict={x: xs[mask], y_: ys[mask]})
+            if it % 100 == 0:
+                print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
+            samples = sess.run(G_sample, feed_dict={x: xs[0:1], y_: ys[0:1]})
 
             img = np.array(samples[0])
             im = Image.fromarray(np.uint8(img))
-            im.save("test/generated_sample" + str(it) + ".jpeg")
+            im.save("test/generated_sample" + str(epoch) + ".jpeg")
     return 0
 
 
