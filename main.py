@@ -13,25 +13,23 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def get_input(model="train"):
-    dataset = np.zeros((400, 256, 512, 3))
-    for i in range(1, 401):
-        img = Image.open("dataset/" + model + "/" + str(i) + ".jpg")
-        dataset[i - 1] = np.array(img)
+    dataset = np.zeros((30, 256, 512, 3))
+    mask = np.random.choice(400, 30)
+    for idx, i in enumerate(mask):
+        img = Image.open("dataset/" + model + "/" + str(i+1) + ".jpg")
+        dataset[idx] = np.array(img)
     x = dataset[:, :, :256, :]
     y = dataset[:, :, 256:, :]
     return x, y
 
 
-def get_solver(learning_rate=1e-3, beta1=0.5):
+def get_solver(learning_rate=1e-4, beta1=0.5):
     D_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
     G_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
     return D_solver, G_solver
 
 
 def train():
-    xs, ys = get_input()
-    print(xs.shape)
-    print(ys.shape)
 
     sess = tf.InteractiveSession()
 
@@ -43,27 +41,34 @@ def train():
     logits_real = models.con_discriminator(x, y_, name='D2')
 
     # get loss
-    D_loss, G_loss = loss.lsgan_loss(logits_fake=logits_fake, logits_real=logits_real)
+    print('loss')
+    D_loss, G_loss = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
 
     # get solver
+    print('solver')
     D_solver, G_solver = get_solver()
 
     # get training steps
+    print('train_step')
     D_train_step = D_solver.minimize(D_loss)
     G_train_step = G_solver.minimize(G_loss)
 
     # init
+    print('init')
     tf.global_variables_initializer().run()
-
+    print('init')
     # iterations
     for it in range(5000):
-        mask = np.random.choice(400, 30)
-        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
-        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+        print('it begins')
+        xs, ys = get_input()
+        print(xs.shape, ys.shape)
+        _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs, y_: ys})
+        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs, y_: ys})
+        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs, y_: ys})
         print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
 
         if it % 100 == 0:
-            samples = sess.run(G_sample, feed_dict={x: xs[mask], y_: ys[mask]})
+            samples = sess.run(G_sample, feed_dict={x: xs, y_: ys})
 
             img = np.array(samples[0])
             im = Image.fromarray(np.uint8(img))
@@ -84,39 +89,39 @@ def main():
 
 if __name__ == "__main__":
     # Argument parse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input-dir")
-    parser.add_argument("--mode")
-    parser.add_argument("--output_dir")
-    parser.add_argument("--seed")
-    parser.add_argument("--checkpoint")
-
-    parser.add_argument("--max_steps")
-    parser.add_argument("--max_epochs")
-    parser.add_argument("--summary_freq")
-    parser.add_argument("--progress_freq")
-    parser.add_argument("--trace_freq")
-    parser.add_argument("--display_freq")
-    parser.add_argument("--save_freq")
-
-    parser.add_argument("--aspect_ratio")
-    parser.add_argument("--lab_colorization")
-    parser.add_argument("--batch_size")
-    parser.add_argument("--which_direction")
-    parser.add_argument("--ngf")
-    parser.add_argument("--ndf")
-    parser.add_argument("--scale_size")
-    parser.add_argument("--flip")
-    parser.add_argument("--no_flip")
-    parser.set_defaults(flip=True)
-    parser.add_argument("--lr")
-    parser.add_argument("--beta1")
-    parser.add_argument("--l1_weight")
-    parser.add_argument("--gan_weight")
-
-    # export options
-    parser.add_argument("--output_filetype", default="png", choices=["png", "jpeg"])
-    a = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("--input-dir")
+    # parser.add_argument("--mode")
+    # parser.add_argument("--output_dir")
+    # parser.add_argument("--seed")
+    # parser.add_argument("--checkpoint")
+    #
+    # parser.add_argument("--max_steps")
+    # parser.add_argument("--max_epochs")
+    # parser.add_argument("--summary_freq")
+    # parser.add_argument("--progress_freq")
+    # parser.add_argument("--trace_freq")
+    # parser.add_argument("--display_freq")
+    # parser.add_argument("--save_freq")
+    #
+    # parser.add_argument("--aspect_ratio")
+    # parser.add_argument("--lab_colorization")
+    # parser.add_argument("--batch_size")
+    # parser.add_argument("--which_direction")
+    # parser.add_argument("--ngf")
+    # parser.add_argument("--ndf")
+    # parser.add_argument("--scale_size")
+    # parser.add_argument("--flip")
+    # parser.add_argument("--no_flip")
+    # parser.set_defaults(flip=True)
+    # parser.add_argument("--lr")
+    # parser.add_argument("--beta1")
+    # parser.add_argument("--l1_weight")
+    # parser.add_argument("--gan_weight")
+    #
+    # # export options
+    # parser.add_argument("--output_filetype", default="png", choices=["png", "jpeg"])
+    # a = parser.parse_args()
 
     EPS = 1e-12
     CROP_SIZE = 256
