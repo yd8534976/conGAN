@@ -42,24 +42,11 @@ def con_discriminator(x, y, name="discriminator"):
     with tf.variable_scope(name):
         inputs = tf.concat([x, y], axis=3)
         #inputs = tf.random_crop(inputs, [1, 70, 70, 6])
-        h1 = tf.layers.conv2d(inputs, filters=64, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h1 = tf.layers.batch_normalization(h1)
-        h2 = tf.layers.conv2d(h1, filters=128, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h2 = tf.layers.batch_normalization(h2)
-        h3 = tf.layers.conv2d(h2, filters=256, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h3 = tf.layers.batch_normalization(h3)
-        h4 = tf.layers.conv2d(h3, filters=512, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h4 = tf.layers.batch_normalization(h4)
+        h1 = conv_bn_lrelu(inputs, 64)
+        h2 = conv_bn_lrelu(h1, 128)
+        h3 = conv_bn_lrelu(h2, 256)
+        h4 = conv_bn_lrelu(h3, 512)
         logits = tf.layers.dense(h4, units=1, activation=tf.nn.sigmoid)
-
     return logits
 
 
@@ -79,21 +66,21 @@ def generator(inputs, name="generator"):
         # input 256x256
         inputs = tf.layers.batch_normalization(inputs)
         # h1 128x128
-        e1 = conv_bn_relu(inputs, 64)
+        e1 = conv_bn_lrelu(inputs, 64)
         # h2 64x64
-        e2 = conv_bn_relu(e1, 128)
+        e2 = conv_bn_lrelu(e1, 128)
         # h3 32x32
-        e3 = conv_bn_relu(e2, 256)
+        e3 = conv_bn_lrelu(e2, 256)
         # h4 16x16
-        e4 = conv_bn_relu(e3, 512)
+        e4 = conv_bn_lrelu(e3, 512)
         # h5 8x8
-        e5 = conv_bn_relu(e4, 512)
+        e5 = conv_bn_lrelu(e4, 512)
         # h6 4x4
-        e6 = conv_bn_relu(e5, 512)
+        e6 = conv_bn_lrelu(e5, 512)
         # h7 2x2
-        e7 = conv_bn_relu(e6, 512)
+        e7 = conv_bn_lrelu(e6, 512)
         # h8 1x1
-        e8 = conv_bn_relu(e7, 512)
+        e8 = conv_bn_lrelu(e7, 512)
         # decoder
         # h9 2x2
         d1 = deconv_bn_dropout_relu(e8, filters=512)

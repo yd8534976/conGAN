@@ -22,9 +22,9 @@ def get_input(model="train"):
     return x, y
 
 
-def get_solver(learning_rate=1e-3, beta1=0.5):
+def get_solver(learning_rate=1e-4, beta1=0.5):
     D_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
-    G_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
+    G_solver = tf.train.AdamOptimizer(learning_rate=2*learning_rate, beta1=beta1)
     return D_solver, G_solver
 
 
