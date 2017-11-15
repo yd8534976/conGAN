@@ -22,9 +22,9 @@ def get_input(model="train"):
     return x, y
 
 
-def get_solver(learning_rate=1e-4, beta1=0.5):
+def get_solver(learning_rate=2e-4, beta1=0.5):
     D_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
-    G_solver = tf.train.AdamOptimizer(learning_rate=2*learning_rate, beta1=beta1)
+    G_solver = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1)
     return D_solver, G_solver
 
 
@@ -60,6 +60,7 @@ def train():
         mask = np.random.choice(400, 1)
         _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+        _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
 
         if it % 100 == 0:
@@ -67,7 +68,7 @@ def train():
 
             img = np.array(samples[0])
             im = Image.fromarray(np.uint8(img))
-            im.save("generated_sample" + str(it) + ".jpeg")
+            im.save("test/generated_sample" + str(it) + ".jpeg")
     return 0
 
 
