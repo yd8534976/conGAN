@@ -1,4 +1,4 @@
-import tensorflow as tf
+from layers import *
 
 
 # discriminator for cGAN
@@ -79,98 +79,48 @@ def generator(inputs, name="generator"):
         # input 256x256
         inputs = tf.layers.batch_normalization(inputs)
         # h1 128x128
-        h1 = tf.layers.conv2d(inputs, filters=64, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h1 = tf.layers.batch_normalization(h1)
+        e1 = conv_bn_relu(inputs, 64)
         # h2 64x64
-        h2 = tf.layers.conv2d(h1, filters=128, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h2 = tf.layers.batch_normalization(h2)
+        e2 = conv_bn_relu(e1, 128)
         # h3 32x32
-        h3 = tf.layers.conv2d(h2, filters=256, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h3 = tf.layers.batch_normalization(h3)
+        e3 = conv_bn_relu(e2, 256)
         # h4 16x16
-        h4 = tf.layers.conv2d(h3, filters=512, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h4 = tf.layers.batch_normalization(h4)
+        e4 = conv_bn_relu(e3, 512)
         # h5 8x8
-        h5 = tf.layers.conv2d(h4, filters=512, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h5 = tf.layers.batch_normalization(h5)
+        e5 = conv_bn_relu(e4, 512)
         # h6 4x4
-        h6 = tf.layers.conv2d(h5, filters=512, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h6 = tf.layers.batch_normalization(h6)
+        e6 = conv_bn_relu(e5, 512)
         # h7 2x2
-        h7 = tf.layers.conv2d(h6, filters=512, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h7 = tf.layers.batch_normalization(h7)
+        e7 = conv_bn_relu(e6, 512)
         # h8 1x1
-        h8 = tf.layers.conv2d(h7, filters=512, kernel_size=(4, 4),
-                              strides=(2, 2), padding='same',
-                              activation=tf.nn.leaky_relu)
-        h8 = tf.layers.batch_normalization(h8)
+        e8 = conv_bn_relu(e7, 512)
         # decoder
         # h9 2x2
-        h9 = tf.layers.conv2d_transpose(h8, filters=512, kernel_size=(4, 4),
-                                        strides=(2, 2), padding='same',
-                                        activation=tf.nn.relu)
-        h9 = tf.concat([h7, h9], axis=3)
-        h9 = tf.layers.batch_normalization(h9)
-        h9 = tf.nn.dropout(h9, keep_prob=0.5)
+        d1 = deconv_bn_dropout_relu(e8, filters=512)
+        d1 = tf.concat([d1, e7], axis=3)
         # h10 4x4
-        h10 = tf.layers.conv2d_transpose(h9, filters=512, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
-        h10 = tf.concat([h6, h10], axis=3)
-        h10 = tf.layers.batch_normalization(h10)
-        h10 = tf.nn.dropout(h10, keep_prob=0.5)
+        d2 = deconv_bn_dropout_relu(d1, filters=512)
+        d2 = tf.concat([d2, e6], axis=3)
         # h11 8x8
-        h11 = tf.layers.conv2d_transpose(h10, filters=512, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
-        h11 = tf.concat([h5, h11], axis=3)
-        h11 = tf.layers.batch_normalization(h11)
-        h11 = tf.nn.dropout(h11, keep_prob=0.5)
+        d3 = deconv_bn_dropout_relu(d2, filters=512)
+        d3 = tf.concat([d3, e5], axis=3)
         # h12 16x16
-        h12 = tf.layers.conv2d_transpose(h11, filters=512, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
-        h12 = tf.concat([h4, h12], axis=3)
-        h12 = tf.layers.batch_normalization(h12)
+        d4 = deconv_bn_relu(d3, filters=512)
+        d4 = tf.concat([d4, e4], axis=3)
         # h13 32x32
-        h13 = tf.layers.conv2d_transpose(h12, filters=512, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
-        h13 = tf.concat([h3, h13], axis=3)
-        h13 = tf.layers.batch_normalization(h13)
+        d5 = deconv_bn_relu(d4, filters=512)
+        d5 = tf.concat([d5, e3], axis=3)
         # h14 64x64
-        h14 = tf.layers.conv2d_transpose(h13, filters=256, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
-        h14 = tf.concat([h2, h14], axis=3)
-        h14 = tf.layers.batch_normalization(h14)
+        d6 = deconv_bn_relu(d5, filters=256)
+        d6 = tf.concat([d6, e2], axis=3)
         # h15 128x128
-        h15 = tf.layers.conv2d_transpose(h14, filters=128, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
-        h15 = tf.concat([h1, h15], axis=3)
-        h15 = tf.layers.batch_normalization(h15)
+        d7 = deconv_bn_relu(d6, filters=128)
+        d7 = tf.concat([d7, e1], axis=3)
         # h16 256x256
-        h16 = tf.layers.conv2d_transpose(h15, filters=64, kernel_size=(4, 4),
-                                         strides=(2, 2), padding='same',
-                                         activation=tf.nn.relu)
+        d8 = deconv_bn_relu(d7, filters=64)
         # out 256x256x3
-        out = tf.layers.conv2d_transpose(h16, filters=3, kernel_size=(1, 1),
-                               strides=(1, 1), padding='same',
-                               activation=tf.nn.relu)
-
+        out_rgb = tf.layers.conv2d_transpose(d8, filters=3, kernel_size=(4, 4),
+                                             strides=(1, 1), padding='same',
+                                             activation=tf.nn.relu)
+        out = 255 * tf.nn.sigmoid(out_rgb)
     return out

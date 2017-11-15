@@ -57,7 +57,7 @@ def train():
 
     # iterations
     for it in range(5000):
-        mask = np.random.choice(400, 30)
+        mask = np.random.choice(400, 1)
         _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
         print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
