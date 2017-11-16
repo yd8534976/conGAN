@@ -108,5 +108,5 @@ def generator(inputs, name="generator"):
         # out 256x256x3
         out_rgb = tf.layers.conv2d_transpose(d8, filters=3, kernel_size=(4, 4),
                                              strides=(1, 1), padding='same')
-        out = 255 * tf.nn.sigmoid(out_rgb)
+        out = 128 * (tf.nn.tanh(out_rgb) - 1)
     return out
