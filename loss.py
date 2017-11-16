@@ -34,3 +34,7 @@ def lsgan_loss(logits_real, logits_fake):
     D_loss /= 2
     G_loss /= 2
     return D_loss, G_loss
+
+
+def l1_loss(real, fake):
+    return tf.reduce_mean(tf.abs(real - fake))

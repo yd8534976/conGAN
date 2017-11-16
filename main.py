@@ -45,7 +45,7 @@ def train():
 
     # get loss
     D_loss, G_loss = loss.lsgan_loss(logits_fake=logits_fake, logits_real=logits_real)
-
+    G_loss += loss.l1_loss(y_, G_sample)
     # get solver
     D_solver, G_solver = get_solver()
 
@@ -54,7 +54,7 @@ def train():
     G_train_step = G_solver.minimize(G_loss)
 
     # init
-    tf.global_variables_initializer().run()
+    sess.run(tf.global_variables_initializer())
 
     # iterations
     for epoch in range(300):
@@ -65,7 +65,7 @@ def train():
             _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
             _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
 
-            if it % 100 == 0:
+            if it % 50 == 0:
                 print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
             samples = sess.run(G_sample, feed_dict={x: xs[0:1], y_: ys[0:1]})
 
