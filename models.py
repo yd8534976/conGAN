@@ -63,47 +63,63 @@ def generator(inputs, name="generator"):
     """
     with tf.name_scope(name):
         # encoder
-        # input 256x256
+        # input 256x256x3
 
-        # e1 128x128
+        # e1 128x128x64
         e1 = conv_bn_lrelu(inputs, 64)
-        # e2 64x64
+
+        # e2 64x64x128
         e2 = conv_bn_lrelu(e1, 128)
-        # e3 32x32
+
+        # e3 32x32x256
         e3 = conv_bn_lrelu(e2, 256)
-        # e4 16x16
+
+        # e4 16x16x512
         e4 = conv_bn_lrelu(e3, 512)
-        # e5 8x8
+
+        # e5 8x8x512
         e5 = conv_bn_lrelu(e4, 512)
-        # e6 4x4
+
+        # e6 4x4x512
         e6 = conv_bn_lrelu(e5, 512)
-        # e7 2x2
+
+        # e7 2x2x512
         e7 = conv_bn_lrelu(e6, 512)
-        # e8 1x1
+
+        # e8 1x1x512
         e8 = conv_bn_lrelu(e7, 512)
+
         # decoder
-        # d1 2x2
+
+        # d1 2x2x512*2
         d1 = deconv_bn_dropout_relu(e8, filters=512)
         d1 = tf.concat([d1, e7], axis=3)
-        # d2 4x4
+
+        # d2 4x4x512*2
         d2 = deconv_bn_dropout_relu(d1, filters=512)
         d2 = tf.concat([d2, e6], axis=3)
-        # d3 8x8
+
+        # d3 8x8x512*2
         d3 = deconv_bn_dropout_relu(d2, filters=512)
         d3 = tf.concat([d3, e5], axis=3)
-        # d4 16x16
+
+        # d4 16x16x512*2
         d4 = deconv_bn_relu(d3, filters=512)
         d4 = tf.concat([d4, e4], axis=3)
-        # d5 32x32
-        d5 = deconv_bn_relu(d4, filters=512)
+
+        # d5 32x32x256*2
+        d5 = deconv_bn_relu(d4, filters=256)
         d5 = tf.concat([d5, e3], axis=3)
-        # d6 64x64
-        d6 = deconv_bn_relu(d5, filters=256)
+
+        # d6 64x64x128*2
+        d6 = deconv_bn_relu(d5, filters=128)
         d6 = tf.concat([d6, e2], axis=3)
-        # d7 128x128
-        d7 = deconv_bn_relu(d6, filters=128)
+
+        # d7 128x128x64*2
+        d7 = deconv_bn_relu(d6, filters=64)
         d7 = tf.concat([d7, e1], axis=3)
-        # d8 256x256
+
+        # d8 256x256*3
         d8 = deconv_bn_relu(d7, filters=3)
         # out 256x256x3
         out = 128 * (tf.nn.tanh(d8) + 1)
