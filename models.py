@@ -122,7 +122,9 @@ def generator(inputs, name="generator"):
         # d8 256x256*3
         d8 = deconv_bn_relu(d7, filters=3)
         # out 256x256x3
-        dd = deconv_bn_relu(e1, filters=3)
-        dd2 = tf.layers.dense(dd, 3)
+        dd = deconv_bn_relu(e2, filters=64)
+        dd2 = tf.layers.conv2d(dd, filters=3, kernel_size=(4, 4), strides=(1, 1),
+                               padding='same',
+                               kernel_initializer=tf.truncated_normal_initializer(stddev=0.02))
         out = tf.tanh(dd2)
     return out
