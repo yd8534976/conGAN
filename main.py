@@ -71,6 +71,8 @@ def train():
         samples = sess.run(G_sample, feed_dict={x: xs[0:1], y_: ys[0:1]})
 
         img = 255 * (np.array(samples[0]) + 1) / 2
+        print(img.shape)
+        print(img)
         im = Image.fromarray(np.uint8(img))
         im.save("test/generated_sample" + str(epoch) + ".jpeg")
     return 0
