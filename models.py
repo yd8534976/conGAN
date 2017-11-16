@@ -66,7 +66,7 @@ def generator(inputs, name="generator"):
         # input 256x256x3
 
         # e1 128x128x64
-        e1 = conv_bn_lrelu(inputs, 64)
+        e1 = conv_bn_lrelu(inputs, 64, use_bn=False)
 
         # e2 64x64x128
         e2 = conv_bn_lrelu(e1, 128)
@@ -108,23 +108,22 @@ def generator(inputs, name="generator"):
         d4 = tf.concat([d4, e4], axis=3)
 
         # d5 32x32x256*2
-        d5 = deconv_bn_relu(d4, filters=256)
+        d5 = deconv_bn_relu(d4, filters=512)
         d5 = tf.concat([d5, e3], axis=3)
 
         # d6 64x64x128*2
-        d6 = deconv_bn_relu(d5, filters=128)
+        d6 = deconv_bn_relu(d5, filters=256)
         d6 = tf.concat([d6, e2], axis=3)
 
         # d7 128x128x64*2
-        d7 = deconv_bn_relu(d6, filters=64)
+        d7 = deconv_bn_relu(d6, filters=128)
         d7 = tf.concat([d7, e1], axis=3)
 
         # d8 256x256*3
-        d8 = deconv_bn_relu(d7, filters=3)
+        d8 = deconv_bn_relu(d7, filters=64)
         # out 256x256x3
-        dd = deconv_bn_relu(e2, filters=64)
-        dd2 = tf.layers.conv2d(dd, filters=3, kernel_size=(4, 4), strides=(1, 1),
+        out = tf.layers.conv2d(d8, filters=3, kernel_size=(4, 4), strides=(1, 1),
                                padding='same',
                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.02))
-        out = tf.tanh(dd2)
+        out = tf.tanh(out)
     return out
