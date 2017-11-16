@@ -107,6 +107,6 @@ def generator(inputs, name="generator"):
         d8 = deconv_bn_relu(d7, filters=64)
         # out 256x256x3
         out_rgb = tf.layers.conv2d_transpose(d8, filters=3, kernel_size=(4, 4),
-                                             strides=(1, 1), padding='same',
-                                             activation=tf.nn.relu)
-    return out_rgb
+                                             strides=(1, 1), padding='same')
+        out = 255 * tf.nn.sigmoid(out_rgb)
+    return out
