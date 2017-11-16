@@ -123,5 +123,6 @@ def generator(inputs, name="generator"):
         d8 = deconv_bn_relu(d7, filters=3)
         # out 256x256x3
         dd = deconv_bn_relu(e1, filters=3)
-        out = tf.tanh(dd)
+        dd2 = tf.layers.dense(dd)
+        out = tf.tanh(dd2)
     return out
