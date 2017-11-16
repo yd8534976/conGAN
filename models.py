@@ -123,9 +123,8 @@ def generator(inputs, name="generator"):
         d8 = deconv_bn_relu(d7, filters=64)
         #d8 = tf.concat([d8, inputs], axis=3)
         # out 256x256x3
-        dd1 = deconv_bn_relu(e3, filters=256)
-        dd2 = deconv_bn_relu(dd1, filters=128)
-        dd3 = deconv_bn_relu(dd2, filters=64)
+        dd1 = deconv_bn_relu(e2, filters=128)
+        dd2 = deconv_bn_relu(dd1, filters=64)
         out = tf.layers.conv2d(dd3, filters=3, kernel_size=(4, 4), strides=(1, 1),
                                padding='same',
                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.02))
