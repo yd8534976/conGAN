@@ -18,8 +18,8 @@ def get_input(model="train"):
         img = Image.open("dataset/" + model + "/" + str(i) + ".jpg")
         dataset[i - 1] = np.array(img)
     dataset = dataset / 255 * 2 - 1
-    x = dataset[:, :, :256, :]
-    y = dataset[:, :, 256:, :]
+    y = dataset[:, :, :256, :]
+    x = dataset[:, :, 256:, :]
     return x, y
 
 
