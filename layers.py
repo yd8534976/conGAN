@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def conv_bn_lrelu(inputs, filters, kernel_size=(4, 4), strides=(2, 2), use_bn=True):
+def conv_bn_lrelu(inputs, filters, kernel_size=(5, 5), strides=(2, 2), use_bn=True):
     out_conv = tf.layers.conv2d(inputs, filters=filters, kernel_size=kernel_size,
                                 strides=strides, padding='same',
                                 kernel_initializer=tf.truncated_normal_initializer(stddev=0.02))
@@ -11,7 +11,7 @@ def conv_bn_lrelu(inputs, filters, kernel_size=(4, 4), strides=(2, 2), use_bn=Tr
     return out_lrelu
 
 
-def deconv_bn_relu(inputs, filters, kernel_size=(4, 4), strides=(2, 2)):
+def deconv_bn_relu(inputs, filters, kernel_size=(5, 5), strides=(2, 2)):
     out_conv = tf.layers.conv2d_transpose(inputs, filters=filters, kernel_size=kernel_size,
                                           strides=strides, padding='same',
                                           kernel_initializer=tf.truncated_normal_initializer(stddev=0.02))
@@ -20,7 +20,7 @@ def deconv_bn_relu(inputs, filters, kernel_size=(4, 4), strides=(2, 2)):
     return out_relu
 
 
-def deconv_bn_dropout_relu(inputs, filters, kernel_size=(4, 4), strides=(2, 2)):
+def deconv_bn_dropout_relu(inputs, filters, kernel_size=(5, 5), strides=(2, 2)):
     out_conv = tf.layers.conv2d_transpose(inputs, filters=filters, kernel_size=kernel_size,
                                           strides=strides, padding='same',
                                           kernel_initializer=tf.truncated_normal_initializer(stddev=0.02))
