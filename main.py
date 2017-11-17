@@ -53,7 +53,7 @@ def train():
 
     # get loss
     D_loss, G_loss = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
-    # G_loss += loss.l1_loss(y_, G_sample)
+    G_loss += loss.l1_loss(y_, G_sample)
     # get solver
     D_solver, G_solver = get_solver()
 
