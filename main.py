@@ -80,7 +80,7 @@ def train():
         print(samples[0])
         img = 255 * (np.array(samples[0]) + 1) / 2
         im = Image.fromarray(np.uint8(img))
-        im.save("test/generated_sample" + str(epoch) + ".jpeg")
+        im.save("test/generated_sample" + str(epoch) + ".png")
     return 0
 
 
