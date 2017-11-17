@@ -42,9 +42,8 @@ def train():
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
     G_sample = models.generator(x)
 
-    with tf.variable_scope("") as scope:
+    with tf.variable_scope("", reuse=True):
         logits_fake = models.discriminator(G_sample, name='D1')
-        scope.resue_variables()
         logits_real = models.discriminator(y_, name='D2')
 
     # get loss
