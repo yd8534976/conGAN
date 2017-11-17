@@ -47,9 +47,8 @@ def train():
     z = sample_noise((1, 256, 256, 3))
     G_sample = models.generator(x, z)
 
-    with tf.variable_scope("", reuse=tf.AUTO_REUSE):
-        logits_fake = models.con_discriminator(x, G_sample, name='D1')
-        logits_real = models.con_discriminator(x, y_, name='D2')
+    logits_fake = models.con_discriminator(x, G_sample, name='D1')
+    logits_real = models.con_discriminator(x, y_, name='D2')
 
     # get loss
     D_loss, G_loss_gan = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
