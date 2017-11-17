@@ -42,7 +42,7 @@ def train():
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
     G_sample = models.generator(x)
 
-    with tf.variable_scope("", reuse=True):
+    with tf.variable_scope("", reuse=tf.AUTO_REUSE):
         logits_fake = models.discriminator(G_sample, name='D1')
         logits_real = models.discriminator(y_, name='D2')
 
