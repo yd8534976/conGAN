@@ -38,7 +38,7 @@ def con_discriminator(x, y, name="discriminator"):
     return logits
 
 
-def generator(inputs, name="generator"):
+def generator(x, z, name="generator"):
     """
     Generator for conGAN
     encoder:
@@ -52,6 +52,7 @@ def generator(inputs, name="generator"):
     with tf.name_scope(name):
         # encoder
         # input 256x256x3
+        inputs = tf.concat([x, z], axis=3)
 
         # e1 128x128x64
         e1 = conv_bn_lrelu(inputs, 64, use_bn=False)

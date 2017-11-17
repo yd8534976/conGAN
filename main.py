@@ -29,6 +29,10 @@ def get_solver(learning_rate=2e-4, beta1=0.5):
     return D_solver, G_solver
 
 
+def sample_noise(shape):
+    return tf.random_uniform(shape, -1, 1)
+
+
 def train():
     xs, ys = get_input()
     print("load input successfully")
@@ -40,11 +44,12 @@ def train():
     with tf.name_scope("input"):
         x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
-    G_sample = models.generator(x)
+    z = sample_noise((1, 256, 256, 3))
+    G_sample = models.generator(x, z)
 
     with tf.variable_scope("", reuse=tf.AUTO_REUSE):
-        logits_fake = models.discriminator(G_sample, name='D1')
-        logits_real = models.discriminator(y_, name='D2')
+        logits_fake = models.con_discriminator(x, G_sample, name='D1')
+        logits_real = models.con_discriminator(x, y_, name='D2')
 
     # get loss
     D_loss, G_loss = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
