@@ -47,18 +47,23 @@ def train():
     z = sample_noise((1, 256, 256, 3))
     G_sample = models.generator(x, z)
 
-    logits_fake = models.con_discriminator(x, G_sample, name='D1')
-    logits_real = models.con_discriminator(x, y_, name='D2')
+    logits_fake = models.con_discriminator(x, G_sample)
+    logits_real = models.con_discriminator(x, y_)
 
     # get loss
     D_loss, G_loss_gan = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
     G_loss = G_loss_gan + 100 * loss.l1_loss(y_, G_sample)
+
+    D_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "discriminator")
+    G_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "generator")
+    print(D_vars)
+    print(G_vars)
     # get solver
     D_solver, G_solver = get_solver()
 
     # get training steps
-    D_train_step = D_solver.minimize(D_loss)
-    G_train_step = G_solver.minimize(G_loss)
+    D_train_step = D_solver.minimize(D_loss, var_list=D_vars)
+    G_train_step = G_solver.minimize(G_loss, var_list=G_vars)
 
     # init
     sess.run(tf.global_variables_initializer())
