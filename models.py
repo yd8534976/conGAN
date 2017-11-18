@@ -16,7 +16,8 @@ def discriminator(inputs, name="discriminator"):
         h2 = conv_bn_lrelu(h1, 128)
         h3 = conv_bn_lrelu(h2, 256)
         h4 = conv_bn_lrelu(h3, 512)
-        logits = tf.layers.dense(h4, units=1)
+        logits = tf.layers.dense(h4, units=1,
+                                 kernel_initializer=tf.truncated_normal_initializer(stddev=0.02))
     return logits
 
 

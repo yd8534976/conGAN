@@ -52,7 +52,7 @@ def train():
 
     # get loss
     D_loss, G_loss_gan = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
-    G_loss = loss.l1_loss(y_, G_sample)
+    G_loss = G_loss_gan + 100 * loss.l1_loss(y_, G_sample)
     # get solver
     D_solver, G_solver = get_solver()
 
@@ -75,7 +75,7 @@ def train():
             if it % 50 == 0:
                 print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
 
-        for i in range(100):
+        for i in range(5):
             samples = sess.run(G_sample, feed_dict={x: xs[i:i+2], y_: ys[i:i+2]})
             img = 255 * (np.array(samples[0] + 1) / 2)
             im = Image.fromarray(np.uint8(img))
