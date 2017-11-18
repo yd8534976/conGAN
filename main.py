@@ -74,11 +74,12 @@ def train():
 
             if it % 50 == 0:
                 print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
-        samples = sess.run(G_sample, feed_dict={x: xs[0:1], y_: ys[0:1]})
+        samples = sess.run(G_sample, feed_dict={x: xs[0:100], y_: ys[0:100]})
 
-        img = 255 * (np.array(samples[0]) + 1) / 2
-        im = Image.fromarray(np.uint8(img))
-        im.save("test/generated_sample" + str(epoch) + ".jpg")
+        for i in range(100):
+            img = 255 * (np.array(samples[i]) + 1) / 2
+            im = Image.fromarray(np.uint8(img))
+            im.save("test/epoch{}_{}.jpg".format(epoch, i))
     return 0
 
 
