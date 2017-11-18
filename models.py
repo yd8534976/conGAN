@@ -36,7 +36,8 @@ def generator(x, z, name="generator"):
     with tf.variable_scope(name):
         # encoder
         # input 256x256x3
-        inputs = tf.concat([x, z], axis=3)
+        #inputs = tf.concat([x, z], axis=3)
+        inputs = x
 
         # e1 128x128x64
         e1 = conv_bn_lrelu(inputs, 64, use_bn=False)
