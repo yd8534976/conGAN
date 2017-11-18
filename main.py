@@ -56,8 +56,7 @@ def train():
 
     D_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "discriminator")
     G_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "generator")
-    print(D_vars)
-    print(G_vars)
+
     # get solver
     D_solver, G_solver = get_solver()
 
@@ -81,7 +80,7 @@ def train():
                 print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
 
         for i in range(5):
-            samples = sess.run(G_sample, feed_dict={x: xs[i:i+2], y_: ys[i:i+2]})
+            samples = sess.run(G_sample, feed_dict={x: xs[i:i+1], y_: ys[i:i+1]})
             img = 255 * (np.array(samples[0] + 1) / 2)
             im = Image.fromarray(np.uint8(img))
             im.save("test/epoch{}_{}.jpg".format(epoch, i))
