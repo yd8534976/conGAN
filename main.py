@@ -44,7 +44,7 @@ def train():
     with tf.name_scope("input"):
         x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
-    z = sample_noise((400, 256, 256, 3))
+    z = sample_noise((1, 256, 256, 3))
     G_sample = models.generator(x, z)
 
     logits_fake = models.con_discriminator(x, G_sample, name='D1')
@@ -74,10 +74,10 @@ def train():
 
             if it % 50 == 0:
                 print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
-        samples = sess.run(G_sample, feed_dict={x: xs[0:30], y_: ys[0:30]})
 
         for i in range(100):
-            img = 255 * (np.array(samples[i]) + 1) / 2
+            samples = sess.run(G_sample, feed_dict={x: xs[i], y_: ys[i]})
+            img = 255 * (np.array(samples + 1) / 2)
             im = Image.fromarray(np.uint8(img))
             im.save("test/epoch{}_{}.jpg".format(epoch, i))
     return 0
