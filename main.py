@@ -52,7 +52,7 @@ def train(learning_rate, beta1, l1_lambda, max_epochs):
     tf.summary.scalar("D_loss", D_loss)
     tf.summary.scalar("G_loss", G_loss)
     merged = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter("summary/")
+    train_writer = tf.summary.FileWriter("summary/", sess.graph)
 
     # get weights list
     D_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "discriminator")
@@ -87,7 +87,11 @@ def train(learning_rate, beta1, l1_lambda, max_epochs):
             img = 255 * (np.array(samples[0] + 1) / 2)
             im = Image.fromarray(np.uint8(img))
             im.save("samples/epoch{}_{}.jpg".format(epoch, i))
-            
+
+    return 0
+
+
+def test():
     return 0
 
 
