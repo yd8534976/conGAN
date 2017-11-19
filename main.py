@@ -75,7 +75,8 @@ def train(learning_rate, beta1, l1_lambda, max_epochs):
             mask = np.random.choice(400, 1)
             _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
             _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
-            _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+            summary, _, G_loss_curr = sess.run([merged, G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+            train_writer.add_summary(summary)
 
             if it % 50 == 0:
                 print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
@@ -86,10 +87,7 @@ def train(learning_rate, beta1, l1_lambda, max_epochs):
             img = 255 * (np.array(samples[0] + 1) / 2)
             im = Image.fromarray(np.uint8(img))
             im.save("samples/epoch{}_{}.jpg".format(epoch, i))
-
-        # summary
-        summary = sess.run(merged)
-        train_writer.add_summary(summary)
+            
     return 0
 
 
