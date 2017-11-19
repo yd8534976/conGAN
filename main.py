@@ -29,12 +29,8 @@ def get_solver(learning_rate=2e-4, beta1=0.5):
     return D_solver, G_solver
 
 
-def sample_noise(shape):
-    return tf.random_uniform(shape, -1, 1)
-
-
-def train():
-    xs, ys = get_input()
+def train(learning_rate, beta1, l1_lambda, max_epochs):
+    xs, ys = get_input("train")
     print("load input successfully")
     print("input x shape is {}".format(xs.shape))
     print("input y shape is {}".format(ys.shape))
@@ -44,21 +40,26 @@ def train():
     with tf.name_scope("input"):
         x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
-    z = sample_noise((1, 256, 256, 3))
-    G_sample = models.generator(x, z)
+
+    G_sample = models.generator(x)
 
     logits_fake = models.con_discriminator(x, G_sample)
     logits_real = models.con_discriminator(x, y_)
 
     # get loss
     D_loss, G_loss_gan = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
-    G_loss = G_loss_gan + 100 * loss.l1_loss(y_, G_sample)
+    G_loss = G_loss_gan + l1_lambda * loss.l1_loss(y_, G_sample)
+    tf.summary.scalar("D_loss", D_loss)
+    tf.summary.scalar("G_loss", G_loss)
+    merged = tf.summary.merge_all()
+    train_writer = tf.summary.FileWriter("summary/")
 
+    # get weights list
     D_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "discriminator")
     G_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "generator")
 
     # get solver
-    D_solver, G_solver = get_solver()
+    D_solver, G_solver = get_solver(learning_rate=learning_rate, beta1=beta1)
 
     # get training steps
     D_train_step = D_solver.minimize(D_loss, var_list=D_vars)
@@ -68,7 +69,7 @@ def train():
     sess.run(tf.global_variables_initializer())
 
     # iterations
-    for epoch in range(300):
+    for epoch in range(max_epochs):
         print("Epoch: {}".format(epoch))
         for it in range(400):
             mask = np.random.choice(400, 1)
@@ -79,19 +80,24 @@ def train():
             if it % 50 == 0:
                 print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
 
+        # save 5 sample images for each epoch
         for i in range(5):
             samples = sess.run(G_sample, feed_dict={x: xs[i:i+1], y_: ys[i:i+1]})
             img = 255 * (np.array(samples[0] + 1) / 2)
             im = Image.fromarray(np.uint8(img))
-            im.save("test/epoch{}_{}.jpg".format(epoch, i))
+            im.save("samples/epoch{}_{}.jpg".format(epoch, i))
+
+        # summary
+        summary = sess.run(merged)
+        train_writer.add_summary(summary)
     return 0
 
 
-def main():
+def main(a):
 
     # input data
     # pre process data
-    train()
+    train(a.lr, a.beta1, a.l1_lambda, a.max_epochs)
     # train
     # iter
 
@@ -101,40 +107,27 @@ def main():
 if __name__ == "__main__":
     # Argument parse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input-dir")
-    parser.add_argument("--mode")
-    parser.add_argument("--output_dir")
+    parser.add_argument("--mode", required=True, choices=["train", "test"])
     parser.add_argument("--seed")
-    parser.add_argument("--checkpoint")
+    parser.add_argument("--checkpoint", default=None)
 
-    parser.add_argument("--max_steps")
-    parser.add_argument("--max_epochs")
+    parser.add_argument("--max_epochs", type=int, default=200, help="max number of epochs")
     parser.add_argument("--summary_freq")
     parser.add_argument("--progress_freq")
     parser.add_argument("--trace_freq")
     parser.add_argument("--display_freq")
     parser.add_argument("--save_freq")
 
-    parser.add_argument("--aspect_ratio")
-    parser.add_argument("--lab_colorization")
-    parser.add_argument("--batch_size")
-    parser.add_argument("--which_direction")
-    parser.add_argument("--ngf")
-    parser.add_argument("--ndf")
-    parser.add_argument("--scale_size")
-    parser.add_argument("--flip")
-    parser.add_argument("--no_flip")
-    parser.set_defaults(flip=True)
-    parser.add_argument("--lr")
-    parser.add_argument("--beta1")
-    parser.add_argument("--l1_weight")
-    parser.add_argument("--gan_weight")
+    parser.add_argument("--lr", type=float, default=2e-4, help="learning rate for adam")
+    parser.add_argument("--beta1", type=float, default=0.5, help="momentum term of adam")
+    parser.add_argument("--l1_lambda", type=float, default=100.0, help="weight for L1 term")
 
     # export options
-    parser.add_argument("--output_filetype", default="png", choices=["png", "jpeg"])
+    parser.add_argument("--output_filetype", default="jpg", choices=["png", "jpg"])
     a = parser.parse_args()
+    print(a.mode)
 
     EPS = 1e-12
     CROP_SIZE = 256
 
-    main()
+    main(a)

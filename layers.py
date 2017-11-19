@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 
+# Convolutional-BatchNorm-LeakyReLU
 def conv_bn_lrelu(inputs, filters, kernel_size=(5, 5), strides=(2, 2), use_bn=True):
     out_conv = tf.layers.conv2d(inputs, filters=filters, kernel_size=kernel_size,
                                 strides=strides, padding='same',
@@ -11,6 +12,7 @@ def conv_bn_lrelu(inputs, filters, kernel_size=(5, 5), strides=(2, 2), use_bn=Tr
     return out_lrelu
 
 
+# Deconvolutional-BatchNorm-ReLU
 def deconv_bn_relu(inputs, filters, kernel_size=(5, 5), strides=(2, 2)):
     out_conv = tf.layers.conv2d_transpose(inputs, filters=filters, kernel_size=kernel_size,
                                           strides=strides, padding='same',
@@ -20,6 +22,7 @@ def deconv_bn_relu(inputs, filters, kernel_size=(5, 5), strides=(2, 2)):
     return out_relu
 
 
+# Deconvolutional-BatchNorm-Dropout-ReLU
 def deconv_bn_dropout_relu(inputs, filters, kernel_size=(5, 5), strides=(2, 2)):
     out_conv = tf.layers.conv2d_transpose(inputs, filters=filters, kernel_size=kernel_size,
                                           strides=strides, padding='same',
