@@ -48,7 +48,8 @@ def train(learning_rate, beta1, l1_lambda, max_epochs):
 
     # get loss
     D_loss, G_loss_gan = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
-    G_loss = G_loss_gan + l1_lambda * loss.l1_loss(y_, G_sample)
+    with tf.variable_scope("G_loss"):
+        G_loss = G_loss_gan + l1_lambda * loss.l1_loss(y_, G_sample)
     tf.summary.scalar("D_loss", D_loss)
     tf.summary.scalar("G_loss", G_loss)
     merged = tf.summary.merge_all()
