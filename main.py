@@ -111,7 +111,8 @@ def train(learning_rate, beta1, l1_lambda, max_epochs,
 
         # save summary and checkpoint
         if step % summary_freq == 0:
-            summary = sess.run(merged, feed_dict={x: xs_train, y_: ys_train})
+            mask = np.random.choice(400, 30)
+            summary = sess.run(merged, feed_dict={x: xs_train[mask], y_: ys_train[mask]})
             train_writer.add_summary(summary)
             saver.save(sess, summary, global_step=step)
 
