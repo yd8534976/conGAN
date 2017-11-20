@@ -18,8 +18,7 @@ def get_input(mode="train"):
         for i in range(1, 401):
             img = Image.open("dataset/{}/{}.jpg".format(mode, i))
             dataset[i - 1] = np.array(img)
-
-    if mode == ("test" or "val"):
+    else:
         dataset = np.zeros((100, 256, 512, 3))
         for i in range(1, 101):
             img = Image.open("dataset/{}/{}.jpg".format(mode, i))
