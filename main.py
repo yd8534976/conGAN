@@ -13,6 +13,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def get_input(model="train"):
+    dataset = None
     if model == "train":
         dataset = np.zeros((400, 256, 512, 3))
         for i in range(1, 401):
