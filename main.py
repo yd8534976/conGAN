@@ -51,7 +51,7 @@ def run_model(mode, learning_rate, beta1, l1_lambda, max_epochs,
     if mode == "train":
         xs_train, ys_train = get_input("train")
         xs_val, ys_val = get_input("val")
-        save_sample_img(xs_val, 1, mode="val")
+        save_sample_img(xs_val, 1, mode="test")
         print("load train data successfully")
         print("input x shape is {}".format(xs_train.shape))
         print("input y shape is {}".format(ys_train.shape))
