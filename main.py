@@ -38,7 +38,7 @@ def save_sample_img(samples, step, mode="train"):
         # rescale [-1, 1] to [0, 255]
         img = 255 * (np.array(samples[i] + 1) / 2)
         im = Image.fromarray(np.uint8(img))
-        im.save("samples/{}_step{}_{}.jpg".format(mode, step, i))
+        im.save("samples/{}/step{}_{}.jpg".format(mode, step, i))
 
 
 def get_solver(learning_rate=2e-4, beta1=0.5):
@@ -47,16 +47,22 @@ def get_solver(learning_rate=2e-4, beta1=0.5):
     return D_solver, G_solver
 
 
-def train(learning_rate, beta1, l1_lambda, max_epochs,
-          summary_freq, display_freq, save_freq):
-    xs_train, ys_train = get_input("train")
-    xs_val, ys_val = get_input("val")
-    print("load input successfully")
-    print("input x shape is {}".format(xs_train.shape))
-    print("input y shape is {}".format(ys_train.shape))
+def run_model(mode, learning_rate, beta1, l1_lambda, max_epochs,
+              summary_freq, display_freq, save_freq, checkpoint_dir):
+    if mode == "train":
+        xs_train, ys_train = get_input("train")
+        xs_val, ys_val = get_input("val")
+        print("load train data successfully")
+        print("input x shape is {}".format(xs_train.shape))
+        print("input y shape is {}".format(ys_train.shape))
+    else:
+        xs_test, ys_test = get_input("test")
+        print("load test data successfully")
+        print("input x shape is {}".format(xs_test.shape))
+        print("input y shape is {}".format(ys_test.shape))
 
-    sess = tf.InteractiveSession()
-
+    # build model
+    # -----------
     with tf.name_scope("input"):
         x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
@@ -74,7 +80,6 @@ def train(learning_rate, beta1, l1_lambda, max_epochs,
     tf.summary.scalar("D_loss", D_loss)
     tf.summary.scalar("G_loss", G_loss)
     merged = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter("summary/", sess.graph)
 
     # get weights list
     D_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "discriminator")
@@ -86,55 +91,55 @@ def train(learning_rate, beta1, l1_lambda, max_epochs,
     # get training steps
     D_train_step = D_solver.minimize(D_loss, var_list=D_vars)
     G_train_step = G_solver.minimize(G_loss, var_list=G_vars)
+    # -----------
 
-    # init
-    sess.run(tf.global_variables_initializer())
+    # get session
+    sess = tf.InteractiveSession()
 
     # get saver
     saver = tf.train.Saver()
 
-    # iterations
-    for step in range(max_epochs * 400):
-        if step % 400 == 0:
-            print("Epoch: {}".format(step / 400))
+    # training phase
+    if mode == "train":
+        train_writer = tf.summary.FileWriter("summary/", sess.graph)
+        # init
+        sess.run(tf.global_variables_initializer())
 
-        mask = np.random.choice(400, 1)
-        _, D_loss_curr = sess.run([D_train_step, D_loss],
-                                  feed_dict={x: xs_train[mask], y_: ys_train[mask]})
-        _, G_loss_curr = sess.run([G_train_step, G_loss],
-                                  feed_dict={x: xs_train[mask], y_: ys_train[mask]})
-        _, G_loss_curr = sess.run([G_train_step, G_loss],
-                                  feed_dict={x: xs_train[mask], y_: ys_train[mask]})
+        # iterations
+        for step in range(max_epochs * 400):
+            if step % 400 == 0:
+                print("Epoch: {}".format(step / 400))
 
-        if step % display_freq == 0:
-            print("iter {}: D_loss: {}, G_loss: {}".format(step, D_loss_curr, G_loss_curr))
+            mask = np.random.choice(400, 1)
+            _, D_loss_curr = sess.run([D_train_step, D_loss],
+                                      feed_dict={x: xs_train[mask], y_: ys_train[mask]})
+            _, G_loss_curr = sess.run([G_train_step, G_loss],
+                                      feed_dict={x: xs_train[mask], y_: ys_train[mask]})
+            _, G_loss_curr = sess.run([G_train_step, G_loss],
+                                      feed_dict={x: xs_train[mask], y_: ys_train[mask]})
 
-        # save summary and checkpoint
-        if step % summary_freq == 0:
-            mask = np.random.choice(400, 30)
-            summary = sess.run(merged, feed_dict={x: xs_train[mask], y_: ys_train[mask]})
-            train_writer.add_summary(summary)
-            saver.save(sess, "summary/conGAM.ckpt", global_step=step)
+            if step % display_freq == 0:
+                print("iter {}: D_loss: {}, G_loss: {}".format(step, D_loss_curr, G_loss_curr))
 
-        # save 5 sample images
-        if step % save_freq == 0:
-            samples_train = sess.run(G_sample, feed_dict={x: xs_train[0:5], y_: ys_train[0:5]})
-            save_sample_img(samples_train, step=step, mode="train")
-            samples_val = sess.run(G_sample, feed_dict={x: xs_val[0:5], y_: ys_val[0:5]})
-            save_sample_img(samples_val, step=step, mode="val")
+            # save summary and checkpoint
+            if step % summary_freq == 0:
+                mask = np.random.choice(400, 30)
+                summary = sess.run(merged, feed_dict={x: xs_train[mask], y_: ys_train[mask]})
+                train_writer.add_summary(summary)
+                saver.save(sess, checkpoint_dir, global_step=step)
 
-    return 0
+            # save 5 sample images
+            if step % save_freq == 0:
+                samples_train = sess.run(G_sample, feed_dict={x: xs_train[0:5], y_: ys_train[0:5]})
+                save_sample_img(samples_train, step=step, mode="train")
+                samples_val = sess.run(G_sample, feed_dict={x: xs_val[0:5], y_: ys_val[0:5]})
+                save_sample_img(samples_val, step=step, mode="val")
 
-
-def test(checkpoint_dir="summary/"):
-    sess = tf.InteractiveSession()
-    saver = tf.train.Saver()
-    saver.restore(sess, checkpoint_dir)
-
-    xs, ys = get_input("test")
-
-    sample = sess.run()
-
+    # testing phase
+    if mode == "test":
+        saver.restore(sess, checkpoint_dir)
+        samples_test = sess.run(G_sample, feed_dict={x: xs_test[0:5], y_: ys_test[0:5]})
+        save_sample_img(samples_test, step=0, mode="test")
     return 0
 
 
@@ -143,11 +148,12 @@ def main(a):
     # input data
     # pre process data
     if a.mode == "train":
-        train(learning_rate=a.lr, beta1=a.beta1, l1_lambda=a.l1_lambda, max_epochs=a.max_epochs,
-              display_freq=a.display_freq, save_freq=a.save_freq, summary_freq=a.summary_freq)
+        run_model(mode="train", learning_rate=a.lr, beta1=a.beta1, l1_lambda=a.l1_lambda, max_epochs=a.max_epochs,
+                  display_freq=a.display_freq, save_freq=a.save_freq, summary_freq=a.summary_freq,
+                  checkpoint_dir=a.checkpoint_dir)
 
     if a.mode == "test":
-        test()
+        run_model(mode="test")
     # train
     # iter
 
@@ -159,7 +165,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", required=True, choices=["train", "test"])
     parser.add_argument("--seed")
-    parser.add_argument("--checkpoint", default=None)
+    parser.add_argument("--checkpoint_dir", default="summary/conGAN.ckpt")
 
     parser.add_argument("--max_epochs", type=int, default=200, help="max number of epochs")
     parser.add_argument("--summary_freq", type=int, default=200, help="summary frequency")
