@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-from scipy import misc
 
 import models
 import loss
@@ -12,18 +11,18 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
-def get_input(model="train"):
+def get_input(mode="train"):
     dataset = np.zeros((100, 256, 512, 3))
-    if model == "train":
+    if mode == "train":
         dataset = np.zeros((400, 256, 512, 3))
         for i in range(1, 401):
-            img = Image.open("dataset/{}/{}.jpg".format(model, i))
+            img = Image.open("dataset/{}/{}.jpg".format(mode, i))
             dataset[i - 1] = np.array(img)
 
-    if model == ("test" or "val"):
+    if mode == ("test" or "val"):
         dataset = np.zeros((100, 256, 512, 3))
         for i in range(1, 101):
-            img = Image.open("dataset/{}/{}.jpg".format(model, i))
+            img = Image.open("dataset/{}/{}.jpg".format(mode, i))
             dataset[i - 1] = np.array(img)
 
     # rescale [0, 255] to [-1, 1]
@@ -52,6 +51,7 @@ def run_model(mode, learning_rate, beta1, l1_lambda, max_epochs,
     if mode == "train":
         xs_train, ys_train = get_input("train")
         xs_val, ys_val = get_input("val")
+        save_sample_img(xs_val, 1, mode="val")
         print("load train data successfully")
         print("input x shape is {}".format(xs_train.shape))
         print("input y shape is {}".format(ys_train.shape))
@@ -119,7 +119,7 @@ def run_model(mode, learning_rate, beta1, l1_lambda, max_epochs,
                                       feed_dict={x: xs_train[mask], y_: ys_train[mask]})
 
             if step % display_freq == 0:
-                print("iter {}: D_loss: {}, G_loss: {}".format(step, D_loss_curr, G_loss_curr))
+                print("step {}: D_loss: {}, G_loss: {}".format(step, D_loss_curr, G_loss_curr))
 
             # save summary and checkpoint
             if step % summary_freq == 0:
