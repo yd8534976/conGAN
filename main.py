@@ -125,7 +125,7 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
                 mask = np.random.choice(400, 30)
                 summary = sess.run(merged, feed_dict={x: xs_train[mask], y_: ys_train[mask]})
                 train_writer.add_summary(summary)
-                saver.save(sess, checkpoint_dir, global_step=step)
+                saver.save(sess, checkpoint_dir)
 
             # save 5 sample images
             if step % save_freq == 0:
