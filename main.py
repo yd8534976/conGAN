@@ -45,8 +45,9 @@ def get_solver(learning_rate=2e-4, beta1=0.5):
     return D_solver, G_solver
 
 
-def run_model(mode, learning_rate, beta1, l1_lambda, max_epochs,
-              summary_freq, display_freq, save_freq, checkpoint_dir):
+def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200,
+              summary_freq=200, display_freq=50, save_freq=400,
+              checkpoint_dir="summary/conGAN.ckpt"):
     if mode == "train":
         xs_train, ys_train = get_input("train")
         xs_val, ys_val = get_input("val")

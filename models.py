@@ -33,6 +33,7 @@ def generator(inputs, name="generator"):
     with tf.variable_scope(name):
         # inputs 256x256x3
         # encoder
+        # convolutional layers
 
         # e1 128x128x64
         e1 = conv_bn_lrelu(inputs, 64, use_bn=False, name="g_e1_conv")
