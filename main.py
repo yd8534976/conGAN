@@ -13,14 +13,31 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def get_input(model="train"):
-    dataset = np.zeros((400, 256, 512, 3))
-    for i in range(1, 401):
-        img = Image.open("dataset/" + model + "/" + str(i) + ".jpg")
-        dataset[i - 1] = np.array(img)
+    if model == "train":
+        dataset = np.zeros((400, 256, 512, 3))
+        for i in range(1, 401):
+            img = Image.open("dataset/{}/{}.jpg".format(model, i))
+            dataset[i - 1] = np.array(img)
+
+    if model == ("test" or "val"):
+        dataset = np.zeros((100, 256, 512, 3))
+        for i in range(1, 101):
+            img = Image.open("dataset/{}/{}.jpg".format(model, i))
+            dataset[i - 1] = np.array(img)
+
+    # rescale [0, 255] to [-1, 1]
     dataset = dataset / 255 * 2 - 1
     y = dataset[:, :, :256, :]
     x = dataset[:, :, 256:, :]
     return x, y
+
+
+def save_sample_img(samples, step, mode="train"):
+    for i in range(5):
+        # rescale [-1, 1] to [0, 255]
+        img = 255 * (np.array(samples[i] + 1) / 2)
+        im = Image.fromarray(np.uint8(img))
+        im.save("samples/{}_step{}_{}.jpg".format(mode, step, i))
 
 
 def get_solver(learning_rate=2e-4, beta1=0.5):
@@ -29,11 +46,13 @@ def get_solver(learning_rate=2e-4, beta1=0.5):
     return D_solver, G_solver
 
 
-def train(learning_rate, beta1, l1_lambda, max_epochs):
-    xs, ys = get_input("train")
+def train(learning_rate, beta1, l1_lambda, max_epochs,
+          summary_freq, display_freq, save_freq):
+    xs_train, ys_train = get_input("train")
+    xs_val, ys_val = get_input("val")
     print("load input successfully")
-    print("input x shape is {}".format(xs.shape))
-    print("input y shape is {}".format(ys.shape))
+    print("input x shape is {}".format(xs_train.shape))
+    print("input y shape is {}".format(ys_train.shape))
 
     sess = tf.InteractiveSession()
 
@@ -70,30 +89,50 @@ def train(learning_rate, beta1, l1_lambda, max_epochs):
     # init
     sess.run(tf.global_variables_initializer())
 
+    # get saver
+    saver = tf.train.Saver()
+
     # iterations
-    for epoch in range(max_epochs):
-        print("Epoch: {}".format(epoch))
-        for it in range(400):
-            mask = np.random.choice(400, 1)
-            _, D_loss_curr = sess.run([D_train_step, D_loss], feed_dict={x: xs[mask], y_: ys[mask]})
-            _, G_loss_curr = sess.run([G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
-            summary, _, G_loss_curr = sess.run([merged, G_train_step, G_loss], feed_dict={x: xs[mask], y_: ys[mask]})
+    for step in range(max_epochs * 400):
+        if step % 400 == 0:
+            print("Epoch: {}".format(step / 400))
+
+        mask = np.random.choice(400, 1)
+        _, D_loss_curr = sess.run([D_train_step, D_loss],
+                                  feed_dict={x: xs_train[mask], y_: ys_train[mask]})
+        _, G_loss_curr = sess.run([G_train_step, G_loss],
+                                  feed_dict={x: xs_train[mask], y_: ys_train[mask]})
+        _, G_loss_curr = sess.run([G_train_step, G_loss],
+                                  feed_dict={x: xs_train[mask], y_: ys_train[mask]})
+
+        if step % display_freq == 0:
+            print("iter {}: D_loss: {}, G_loss: {}".format(step, D_loss_curr, G_loss_curr))
+
+        # save summary and checkpoint
+        if step % summary_freq == 0:
+            summary = sess.run(merged, feed_dict={x: xs_train, y_: ys_train})
             train_writer.add_summary(summary)
+            saver.save(sess, summary, global_step=step)
 
-            if it % 50 == 0:
-                print("iter {}: D_loss: {}, G_loss: {}".format(it, D_loss_curr, G_loss_curr))
-
-        # save 5 sample images for each epoch
-        for i in range(5):
-            samples = sess.run(G_sample, feed_dict={x: xs[i:i+1], y_: ys[i:i+1]})
-            img = 255 * (np.array(samples[0] + 1) / 2)
-            im = Image.fromarray(np.uint8(img))
-            im.save("samples/epoch{}_{}.jpg".format(epoch, i))
+        # save 5 sample images
+        if step % save_freq == 0:
+            samples_train = sess.run(G_sample, feed_dict={x: xs_train[0:5], y_: ys_train[0:5]})
+            save_sample_img(samples_train, step=step, mode="train")
+            samples_val = sess.run(G_sample, feed_dict={x: xs_val[0:5], y_: ys_val[0:5]})
+            save_sample_img(samples_val, step=step, mode="val")
 
     return 0
 
 
-def test():
+def test(checkpoint_dir="summary/"):
+    sess = tf.InteractiveSession()
+    saver = tf.train.Saver()
+    saver.restore(sess, checkpoint_dir)
+
+    xs, ys = get_input("test")
+
+    sample = sess.run()
+
     return 0
 
 
@@ -101,7 +140,12 @@ def main(a):
 
     # input data
     # pre process data
-    train(a.lr, a.beta1, a.l1_lambda, a.max_epochs)
+    if a.mode == "train":
+        train(learning_rate=a.lr, beta1=a.beta1, l1_lambda=a.l1_lambda, max_epochs=a.max_epochs,
+              display_freq=a.display_freq, save_freq=a.save_freq, summary_freq=a.summary_freq)
+
+    if a.mode == "test":
+        test()
     # train
     # iter
 
@@ -116,11 +160,9 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint", default=None)
 
     parser.add_argument("--max_epochs", type=int, default=200, help="max number of epochs")
-    parser.add_argument("--summary_freq")
-    parser.add_argument("--progress_freq")
-    parser.add_argument("--trace_freq")
-    parser.add_argument("--display_freq")
-    parser.add_argument("--save_freq")
+    parser.add_argument("--summary_freq", type=int, default=200, help="summary frequency")
+    parser.add_argument("--display_freq", type=int, default=50, help="display frequency")
+    parser.add_argument("--save_freq", type=int, default=400, help="save frequency")
 
     parser.add_argument("--lr", type=float, default=2e-4, help="learning rate for adam")
     parser.add_argument("--beta1", type=float, default=0.5, help="momentum term of adam")
