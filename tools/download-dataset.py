@@ -2,8 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from urllib.request import urlopen # python 3
-
+try:
+    from urllib.request import urlopen # python 3
+except ImportError:
+    from urllib2 import urlopen # python 2
 import sys
 import tarfile
 import tempfile
