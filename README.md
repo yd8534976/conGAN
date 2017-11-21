@@ -18,7 +18,8 @@ cd conGAN
 ````
 - Download the dataset:
 ````
-bash ./tools/download_dataset.sh facades
+python ./tools/download_dataset.py facades
+mv facades dataset
 ````
 - Train mode
 ````
@@ -30,7 +31,7 @@ python main.py --mode="test"
 ````
 ### Visualization
 ````
-tensorboard summary/
+tensorboard --logdir=summary/
 ````
 ### Citation
 If you use this code for your research, cite paper [Image-to-Image Translation with Conditional Adversarial Networks](https://arxiv.org/pdf/1611.07004v1.pdf)
