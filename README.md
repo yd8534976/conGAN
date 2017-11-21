@@ -13,7 +13,7 @@
 
 - Clone this repo:
 ````
-git clone git@github.com:yd8534976/conGAN.git
+git clone https://github.com/yd8534976/conGAN.git
 cd conGAN
 ````
 - Download the dataset:
