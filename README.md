@@ -1,6 +1,6 @@
 # Implementation for conditional GAN (pix2pix-tensorflow)
 
-[[Paper]](https://arxiv.org/pdf/1611.07004v1.pdf) [[PyTorch ver.]](https://github.com/phillipi/pix2pix)
+[[Paper]](https://arxiv.org/pdf/1611.07004v1.pdf) [[Torch ver.]](https://github.com/phillipi/pix2pix)
 
 
 ## Setup
