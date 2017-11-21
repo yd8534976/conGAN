@@ -137,15 +137,13 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
     # testing phase
     if mode == "test":
         saver.restore(sess, checkpoint_dir)
-        samples_test = sess.run(G_sample, feed_dict={x: xs_test[0:5], y_: ys_test[0:5]})
-        save_sample_img(samples_test, step=0, mode="test")
+        for i in range(20):
+            samples_test = sess.run(G_sample, feed_dict={x: xs_test[5*i:5*(i+1)], y_: ys_test[5*i:5*(i+1)]})
+            save_sample_img(samples_test, step=i, mode="test")
     return 0
 
 
 def main(a):
-
-    # input data
-    # pre process data
     if a.mode == "train":
         run_model(mode="train", learning_rate=a.lr, beta1=a.beta1, l1_lambda=a.l1_lambda, max_epochs=a.max_epochs,
                   display_freq=a.display_freq, save_freq=a.save_freq, summary_freq=a.summary_freq,
@@ -153,8 +151,6 @@ def main(a):
 
     if a.mode == "test":
         run_model(mode="test")
-    # train
-    # iter
 
     return 0
 
@@ -179,8 +175,5 @@ if __name__ == "__main__":
     parser.add_argument("--output_filetype", default="jpg", choices=["png", "jpg"])
     a = parser.parse_args()
     print(a.mode)
-
-    EPS = 1e-12
-    CROP_SIZE = 256
 
     main(a)
