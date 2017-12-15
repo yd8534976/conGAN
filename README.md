@@ -18,7 +18,7 @@ cd conGAN
 ````
 - Download the dataset:
 ````
-python ./tools/download_dataset.py facades
+python ./tools/download-dataset.py facades
 mv facades dataset
 ````
 - Train mode
