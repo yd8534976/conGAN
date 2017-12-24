@@ -2,8 +2,7 @@
 
 [[Paper]](https://arxiv.org/pdf/1611.07004v1.pdf) [[Torch ver.]](https://github.com/phillipi/pix2pix)
 
-![examples]
-(./examples.jpg)
+![examples](./examples.jpg)
 
 ## Setup
 ### Prerequisites
