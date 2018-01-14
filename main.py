@@ -10,16 +10,19 @@ import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
+NUM_TRAIN_IMAGES = 400
+NUM_TEST_IMAGES = 100
+
 
 def get_input(mode="train"):
     dataset = np.zeros((100, 256, 512, 3))
     if mode == "train":
-        dataset = np.zeros((400, 256, 512, 3))
+        dataset = np.zeros((NUM_TRAIN_IMAGES, 256, 512, 3))
         for i in range(1, 401):
             img = Image.open("dataset/{}/{}.jpg".format(mode, i))
             dataset[i - 1] = np.array(img)
     else:
-        dataset = np.zeros((100, 256, 512, 3))
+        dataset = np.zeros((NUM_TEST_IMAGES, 256, 512, 3))
         for i in range(1, 101):
             img = Image.open("dataset/{}/{}.jpg".format(mode, i))
             dataset[i - 1] = np.array(img)
@@ -105,11 +108,11 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
         sess.run(tf.global_variables_initializer())
 
         # iterations
-        for step in range(max_epochs * 400):
-            if step % 400 == 0:
-                print("Epoch: {}".format(step / 400))
+        for step in range(max_epochs * NUM_TRAIN_IMAGES):
+            if step % NUM_TRAIN_IMAGES == 0:
+                print("Epoch: {}".format(step / NUM_TRAIN_IMAGES))
 
-            mask = np.random.choice(400, 1)
+            mask = np.random.choice(NUM_TRAIN_IMAGES, 1)
             _, D_loss_curr = sess.run([D_train_step, D_loss],
                                       feed_dict={x: xs_train[mask], y_: ys_train[mask]})
             _, G_loss_curr = sess.run([G_train_step, G_loss],
@@ -122,7 +125,7 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
 
             # save summary and checkpoint
             if step % summary_freq == 0:
-                mask = np.random.choice(400, 30)
+                mask = np.random.choice(NUM_TRAIN_IMAGES, 30)
                 summary = sess.run(merged, feed_dict={x: xs_train[mask], y_: ys_train[mask]})
                 train_writer.add_summary(summary)
                 saver.save(sess, checkpoint_dir)
@@ -140,6 +143,10 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
         for i in range(20):
             samples_test = sess.run(G_sample, feed_dict={x: xs_test[5*i:5*(i+1)], y_: ys_test[5*i:5*(i+1)]})
             save_sample_img(samples_test, step=i, mode="test")
+
+    # close sess
+    sess.close()
+    
     return 0
 
 
