@@ -96,7 +96,9 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
     # -----------
 
     # get session
-    sess = tf.InteractiveSession()
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.InteractiveSession(config=config)
 
     # get saver
     saver = tf.train.Saver()
@@ -146,7 +148,7 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
 
     # close sess
     sess.close()
-    
+
     return 0
 
 
