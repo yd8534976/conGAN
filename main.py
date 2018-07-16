@@ -91,8 +91,10 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
     D_solver, G_solver = get_solver(learning_rate=learning_rate, beta1=beta1)
 
     # get training steps
-    D_train_step = D_solver.minimize(D_loss, var_list=D_vars)
-    G_train_step = G_solver.minimize(G_loss, var_list=G_vars)
+
+    with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
+        D_train_step = D_solver.minimize(D_loss, var_list=D_vars)
+        G_train_step = G_solver.minimize(G_loss, var_list=G_vars)
     # -----------
 
     # get session
