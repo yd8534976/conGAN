@@ -57,11 +57,13 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
         print("load train data successfully")
         print("input x shape is {}".format(xs_train.shape))
         print("input y shape is {}".format(ys_train.shape))
+        is_training = True
     else:
         xs_test, ys_test = get_input("test")
         print("load test data successfully")
         print("input x shape is {}".format(xs_test.shape))
         print("input y shape is {}".format(ys_test.shape))
+        is_training = False
 
     # build model
     # -----------
@@ -69,10 +71,10 @@ def run_model(mode, learning_rate=2e-4, beta1=0.5, l1_lambda=100, max_epochs=200
         x = tf.placeholder(tf.float32, [None, 256, 256, 3], name="x-input")
         y_ = tf.placeholder(tf.float32, [None, 256, 256, 3], name="y-input")
 
-    G_sample = models.generator(x)
+    G_sample = models.generator(x, is_training=is_training)
 
-    logits_fake = models.con_discriminator(x, G_sample)
-    logits_real = models.con_discriminator(x, y_)
+    logits_fake = models.con_discriminator(x, G_sample, is_training=is_training)
+    logits_real = models.con_discriminator(x, y_, is_training=is_training)
 
     # get loss
     D_loss, G_loss_gan = loss.gan_loss(logits_fake=logits_fake, logits_real=logits_real)
